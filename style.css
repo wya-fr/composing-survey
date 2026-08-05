@@ -1,0 +1,626 @@
+/* Import Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@400;500;700;900&display=swap');
+
+:root {
+  --bg-color: #080b11;
+  --panel-bg: rgba(13, 20, 35, 0.65);
+  --panel-border: rgba(255, 255, 255, 0.08);
+  --accent-cyan: #00f2fe;
+  --accent-glow: rgba(0, 242, 254, 0.35);
+  --accent-blue: #4facfe;
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --alert-orange: #f59e0b;
+  --alert-glow: rgba(245, 158, 11, 0.2);
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-digital: 'Orbitron', monospace;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--bg-color);
+  color: var(--text-primary);
+  overflow: hidden;
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Base App Layout */
+#app-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+}
+
+/* Background Map Canvas Container */
+#canvas-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  background: radial-gradient(circle at center, #111827 0%, #030712 100%);
+  cursor: grab;
+}
+
+#canvas-container:active {
+  cursor: grabbing;
+}
+
+#map-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Floating Glassmorphic UI Panels */
+.hud-panel {
+  position: relative;
+  z-index: 10;
+  background: var(--panel-bg);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid var(--panel-border);
+  border-radius: 12px;
+  box-shadow: var(--glass-shadow);
+  color: var(--text-primary);
+  transition: all 0.3s ease;
+}
+
+.hud-panel:hover {
+  border-color: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 8px 32px 0 rgba(0, 242, 254, 0.05);
+}
+
+/* Header Panel - Clocks & Route Banner */
+#header-hud {
+  grid-row: 1;
+  margin: 15px 20px 0 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 24px;
+  pointer-events: auto;
+}
+
+.hud-title-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.hud-title-small {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--accent-cyan);
+  text-shadow: 0 0 8px var(--accent-glow);
+}
+
+.hud-title-main {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+/* Clocks Banner */
+.clocks-container {
+  display: flex;
+  gap: 30px;
+}
+
+.clock-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  padding-right: 30px;
+}
+
+.clock-item:last-child {
+  border-right: none;
+  padding-right: 0;
+}
+
+.clock-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 2px;
+}
+
+.clock-time {
+  font-family: var(--font-digital);
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 1px;
+}
+
+.clock-timezone {
+  font-size: 9px;
+  color: var(--text-muted);
+}
+
+/* Side Panels Layout */
+#main-hud-area {
+  position: absolute;
+  top: 90px;
+  bottom: 120px;
+  left: 20px;
+  right: 20px;
+  pointer-events: none;
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+#left-hud, #right-hud {
+  pointer-events: auto;
+  width: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  height: 100%;
+}
+
+.hud-section {
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex-grow: 1;
+}
+
+.hud-section-header {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent-cyan);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 8px;
+  margin-bottom: 4px;
+}
+
+/* Form Controls styling */
+.control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+label {
+  font-size: 11px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+select, input[type="datetime-local"] {
+  width: 100%;
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  color: white;
+  padding: 8px 12px;
+  font-size: 13px;
+  font-family: var(--font-sans);
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+select:focus, input[type="datetime-local"]:focus {
+  border-color: var(--accent-cyan);
+}
+
+.btn {
+  background: linear-gradient(135deg, var(--accent-blue) 0%, var(--accent-cyan) 100%);
+  border: none;
+  border-radius: 6px;
+  color: #040814;
+  font-weight: 700;
+  padding: 10px 16px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: transform 0.1s ease, opacity 0.2s ease, box-shadow 0.2s ease;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn:hover {
+  opacity: 0.95;
+  box-shadow: 0 0 12px var(--accent-glow);
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: white;
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow: none;
+}
+
+.btn-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+/* Projection Selector Pill */
+.pill-selector {
+  display: flex;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 3px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.pill-option {
+  flex: 1;
+  text-align: center;
+  padding: 8px 0;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 6px;
+  color: var(--text-secondary);
+  transition: all 0.2s ease;
+}
+
+.pill-option.active {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
+}
+
+/* Flight Telemetry Dashboard */
+.telemetry-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  flex-grow: 1;
+  overflow-y: auto;
+}
+
+.telemetry-card {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.telemetry-label {
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.telemetry-value-container {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.telemetry-value {
+  font-family: var(--font-digital);
+  font-size: 16px;
+  font-weight: 700;
+  color: white;
+}
+
+.telemetry-unit {
+  font-size: 10px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+/* Bottom Control Panel */
+#footer-hud {
+  grid-row: 3;
+  margin: 0 20px 15px 20px;
+  padding: 16px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  pointer-events: auto;
+}
+
+.timeline-container {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  width: 100%;
+}
+
+.time-scrubber {
+  flex-grow: 1;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.1);
+  outline: none;
+  cursor: pointer;
+  position: relative;
+}
+
+.time-scrubber::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+}
+
+.time-scrubber::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--accent-cyan);
+  box-shadow: 0 0 8px var(--accent-cyan);
+  cursor: pointer;
+  margin-top: -5px;
+  transition: transform 0.1s ease;
+}
+
+.time-scrubber::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+
+.time-label {
+  font-family: var(--font-digital);
+  font-size: 12px;
+  width: 60px;
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+.time-label.current {
+  color: var(--accent-cyan);
+  font-weight: 700;
+  text-shadow: 0 0 6px var(--accent-glow);
+}
+
+/* Flight progress and Playback controls */
+.controls-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.progress-bar-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-grow: 1;
+  max-width: 50%;
+}
+
+.airport-code {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.flight-progress-track {
+  flex-grow: 1;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+  position: relative;
+  overflow: hidden;
+}
+
+.flight-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-blue) 0%, var(--accent-cyan) 100%);
+  width: 0%;
+  box-shadow: 0 0 6px var(--accent-glow);
+  transition: width 0.1s linear;
+}
+
+.playback-controls {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.play-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent-blue) 0%, var(--accent-cyan) 100%);
+  border: none;
+  color: #040814;
+  font-size: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  box-shadow: 0 0 10px rgba(0, 242, 254, 0.2);
+  transition: all 0.2s ease;
+}
+
+.play-btn:hover {
+  transform: scale(1.08);
+  box-shadow: 0 0 15px var(--accent-glow);
+}
+
+.speed-control-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.speed-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.speed-btn.active {
+  background: var(--accent-cyan);
+  color: #040814;
+  border-color: var(--accent-cyan);
+  font-weight: 700;
+  box-shadow: 0 0 8px var(--accent-glow);
+}
+
+/* Custom route mode notification */
+.custom-route-banner {
+  background: var(--alert-glow);
+  border: 1px dashed var(--alert-orange);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 12px;
+  color: var(--alert-orange);
+  display: none;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  animation: pulse-border 2s infinite ease-in-out;
+}
+
+@keyframes pulse-border {
+  0%, 100% { border-color: rgba(245, 158, 11, 0.4); }
+  50% { border-color: rgba(245, 158, 11, 1); }
+}
+
+/* Tooltips & Helpers */
+.tooltip {
+  position: absolute;
+  background: rgba(15, 23, 42, 0.95);
+  border: 1px solid var(--accent-cyan);
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 11px;
+  pointer-events: none;
+  z-index: 100;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+  color: white;
+  display: none;
+}
+
+/* Canvas instructions overlay */
+.map-instructions {
+  position: absolute;
+  bottom: 125px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 5;
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 11px;
+  color: var(--text-secondary);
+  pointer-events: none;
+  transition: opacity 0.5s ease;
+}
+
+/* Scrollbars */
+.telemetry-grid::-webkit-scrollbar {
+  width: 4px;
+}
+.telemetry-grid::-webkit-scrollbar-track {
+  background: transparent;
+}
+.telemetry-grid::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+}
+.telemetry-grid::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 1024px) {
+  #main-hud-area {
+    flex-direction: column;
+    bottom: 140px;
+    overflow-y: auto;
+    pointer-events: auto;
+  }
+  #left-hud, #right-hud {
+    width: 100%;
+    height: auto;
+  }
+  .hud-section {
+    flex-grow: 0;
+  }
+  body {
+    overflow-y: auto;
+  }
+  #app-container {
+    height: auto;
+    min-height: 100vh;
+  }
+  #canvas-container {
+    height: 50vh;
+    position: relative;
+  }
+  #header-hud {
+    margin: 10px;
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .clocks-container {
+    width: 100%;
+    justify-content: space-between;
+  }
+  #main-hud-area {
+    position: static;
+    padding: 10px;
+    margin: 0;
+  }
+  #footer-hud {
+    margin: 10px;
+    position: static;
+  }
+  .controls-row {
+    flex-direction: column;
+    gap: 15px;
+  }
+  .progress-bar-container {
+    max-width: 100%;
+    width: 100%;
+  }
+}
