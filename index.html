@@ -97,8 +97,26 @@
             <input type="datetime-local" id="date-picker" value="2026-08-05T00:00">
           </div>
           
-          <div class="btn-group">
-            <button class="btn btn-secondary" id="btn-restart">重新起飛</button>
+          <div class="control-group" style="margin-top: 8px;">
+            <label for="month-slider" style="display: flex; justify-content: space-between; font-weight: 500;">
+              <span>月份 (Month)</span>
+              <span id="month-value" style="color: var(--accent-cyan); font-weight: 700;">8月</span>
+            </label>
+            <input type="range" id="month-slider" min="1" max="12" value="8" style="width: 100%; margin-top: 4px;">
+          </div>
+          
+          <div class="control-group" style="margin-top: 8px;">
+            <label style="margin-bottom: 4px; display: block;">季節與節氣快速設定</label>
+            <div class="btn-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+              <button class="btn btn-secondary" id="btn-vernal" style="font-size: 11px; padding: 6px 4px; font-weight: 600;">🌸 春分 (3/21)</button>
+              <button class="btn btn-secondary" id="btn-summer" style="font-size: 11px; padding: 6px 4px; font-weight: 600;">☀️ 夏至 (6/21)</button>
+              <button class="btn btn-secondary" id="btn-autumn" style="font-size: 11px; padding: 6px 4px; font-weight: 600;">🍁 秋分 (9/23)</button>
+              <button class="btn btn-secondary" id="btn-winter" style="font-size: 11px; padding: 6px 4px; font-weight: 600;">❄️ 冬至 (12/21)</button>
+            </div>
+          </div>
+
+          <div class="btn-group" style="margin-top: 8px;">
+            <button class="btn btn-secondary" id="btn-restart" style="width: 100%;">重新起飛</button>
           </div>
         </section>
       </aside>

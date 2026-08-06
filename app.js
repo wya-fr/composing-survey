@@ -709,10 +709,69 @@ function setupUIHandlers() {
   }
 
   // Date / Time picker sync
-  document.getElementById('date-picker').addEventListener('change', () => {
+  document.getElementById('date-picker').addEventListener('change', (e) => {
     // Sync slider back to 0 so we begin flight at the picked date
     document.getElementById('time-slider').value = 0;
     elapsedSimTime = 0;
+    
+    // Update month slider & label to match
+    const d = new Date(e.target.value);
+    const month = d.getMonth() + 1;
+    document.getElementById('month-slider').value = month;
+    document.getElementById('month-value').innerText = `${month}月`;
+  });
+
+  // Month Slider
+  const monthSlider = document.getElementById('month-slider');
+  const monthValue = document.getElementById('month-value');
+  const datePicker = document.getElementById('date-picker');
+
+  function updateDateFromSlider(month) {
+    const currentDate = new Date(datePicker.value);
+    currentDate.setMonth(month - 1);
+    
+    datePicker.value = new Date(currentDate.getTime() - currentDate.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+    monthValue.innerText = `${month}月`;
+  }
+
+  monthSlider.addEventListener('input', (e) => {
+    updateDateFromSlider(parseInt(e.target.value));
+  });
+
+  // Season Buttons helpers
+  function updateDatePicker(d) {
+    datePicker.value = new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+    const month = d.getMonth() + 1;
+    monthSlider.value = month;
+    monthValue.innerText = `${month}月`;
+  }
+
+  document.getElementById('btn-vernal').addEventListener('click', () => {
+    const d = new Date(datePicker.value);
+    d.setMonth(2); // March (0-indexed)
+    d.setDate(21);
+    updateDatePicker(d);
+  });
+
+  document.getElementById('btn-summer').addEventListener('click', () => {
+    const d = new Date(datePicker.value);
+    d.setMonth(5); // June
+    d.setDate(21);
+    updateDatePicker(d);
+  });
+
+  document.getElementById('btn-autumn').addEventListener('click', () => {
+    const d = new Date(datePicker.value);
+    d.setMonth(8); // September
+    d.setDate(23);
+    updateDatePicker(d);
+  });
+
+  document.getElementById('btn-winter').addEventListener('click', () => {
+    const d = new Date(datePicker.value);
+    d.setMonth(11); // December
+    d.setDate(21);
+    updateDatePicker(d);
   });
 
   // Restart Flight Button
