@@ -1,4 +1,3 @@
-// --- CONFIGURATION & DATABASE ---
 const CITIES = {
   TPE: { name: "台北桃園 (TPE)", code: "TPE", coords: [121.23, 25.08], offset: 8 },
   LAX: { name: "洛杉磯 (LAX)", code: "LAX", coords: [-118.41, 33.94], offset: -7 },
@@ -25,7 +24,20 @@ const CITIES = {
   GRU: { name: "聖保羅 (GRU)", code: "GRU", coords: [-46.47, -23.43], offset: -3 },
   DEL: { name: "新德里 (DEL)", code: "DEL", coords: [77.10, 28.57], offset: 5.5 },
   AKL: { name: "奧克蘭 (AKL)", code: "AKL", coords: [174.79, -37.01], offset: 12 },
-  MEX: { name: "墨西哥城 (MEX)", code: "MEX", coords: [-99.07, 19.43], offset: -6 }
+  MEX: { name: "墨西哥城 (MEX)", code: "MEX", coords: [-99.07, 19.43], offset: -6 },
+  MOW: { name: "莫斯科 (MOW)", code: "MOW", coords: [37.62, 55.75], offset: 3 },
+  CAI: { name: "開羅 (CAI)", code: "CAI", coords: [31.24, 30.04], offset: 2 },
+  NBO: { name: "奈洛比 (NBO)", code: "NBO", coords: [36.82, -1.29], offset: 3 },
+  GIG: { name: "里約熱內盧 (GIG)", code: "GIG", coords: [-43.17, -22.91], offset: -3 },
+  EZE: { name: "布宜諾斯艾利斯 (EZE)", code: "EZE", coords: [-58.38, -34.60], offset: -3 },
+  BOM: { name: "孟買 (BOM)", code: "BOM", coords: [72.88, 19.08], offset: 5.5 },
+  PVG: { name: "上海浦東 (PVG)", code: "PVG", coords: [121.80, 31.14], offset: 8 },
+  MNL: { name: "馬尼拉 (MNL)", code: "MNL", coords: [120.98, 14.51], offset: 8 },
+  CGK: { name: "雅加達 (CGK)", code: "CGK", coords: [106.66, -6.13], offset: 7 },
+  LOS: { name: "拉哥斯 (LOS)", code: "LOS", coords: [3.32, 6.58], offset: 1 },
+  ANC: { name: "安克拉治 (ANC)", code: "ANC", coords: [-149.99, 61.17], offset: -8 },
+  KEF: { name: "雷克雅維克 (KEF)", code: "KEF", coords: [-22.61, 63.98], offset: 0 },
+  SEA: { name: "西雅圖 (SEA)", code: "SEA", coords: [-122.30, 47.45], offset: -7 }
 };
 
 // --- STATE VARIABLES ---
@@ -468,6 +480,46 @@ function draw() {
     ctx.textAlign = 'center';
     ctx.fillText(i === 0 ? oCity.code : dCity.code, projPt[0], projPt[1] - 10);
   });
+  ctx.restore();
+
+  // 7.5. Draw All Other City Dots (with night-glowing style)
+  ctx.save();
+  const solarLoc = [solar.longitude, solar.declination * 180 / Math.PI];
+
+  for (const code in CITIES) {
+    const city = CITIES[code];
+    // Skip if it's the active origin or destination (drawn separately)
+    if (code === activeRoute.origin || code === activeRoute.destination) continue;
+
+    const projPt = projection(city.coords);
+    if (!projPt) continue;
+
+    // Check clipping for globe mode
+    if (currentProjectionType === 'globe') {
+      const gDistance = d3.geoDistance(projection.invert([width / 2, height / 2]), city.coords);
+      if (gDistance > Math.PI / 2) continue; // On the back of the globe
+    }
+
+    // Determine if it is night in this city
+    const distToSun = d3.geoDistance(city.coords, solarLoc);
+    const isNight = distToSun >= Math.PI / 2;
+
+    ctx.beginPath();
+    if (isNight) {
+      // Nighttime: Glowing Amber/Yellow "City Light"
+      ctx.arc(projPt[0], projPt[1], 3, 0, 2 * Math.PI);
+      ctx.fillStyle = '#f59e0b'; // Amber
+      ctx.shadowColor = '#fbbf24'; // Brighter amber glow
+      ctx.shadowBlur = 8;
+      ctx.fill();
+    } else {
+      // Daytime: Soft slate/semi-transparent dot
+      ctx.arc(projPt[0], projPt[1], 2, 0, 2 * Math.PI);
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+      ctx.shadowBlur = 0;
+      ctx.fill();
+    }
+  }
   ctx.restore();
 
   // 8. Draw Airplane Icon
