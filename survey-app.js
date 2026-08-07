@@ -226,10 +226,10 @@ document.addEventListener('DOMContentLoaded', () => {
           otherCb.disabled = checkedCount >= limit;
           if (checkedCount >= limit) {
             otherCb.parentElement.classList.add('opacity-40', 'cursor-not-allowed');
-            otherCb.parentElement.classList.remove('hover:bg-slate-950/80');
+            otherCb.parentElement.classList.remove('hover:bg-slate-100/50');
           } else {
             otherCb.parentElement.classList.remove('opacity-40', 'cursor-not-allowed');
-            otherCb.parentElement.classList.add('hover:bg-slate-950/80');
+            otherCb.parentElement.classList.add('hover:bg-slate-100/50');
           }
         } else {
           otherCb.disabled = false;
