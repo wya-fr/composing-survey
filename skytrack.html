@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SkyTrack - 飛航互動模擬與晝夜分界地圖</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div id="app-container">
+    
+    <!-- 1. Background Interactive Map Canvas -->
+    <div id="canvas-container">
+      <canvas id="map-canvas"></canvas>
+      
+      <!-- Canvas Control Guides -->
+      <div class="map-instructions" id="map-inst">
+        拖曳可旋轉地球/移動地圖 • 點擊都市點可檢視該地即時時間
+      </div>
+    </div>
+
+    <!-- 2. Header HUD Panel - Clocks & Titles -->
+    <header id="header-hud" class="hud-panel">
+      <div class="hud-title-container">
+        <span class="hud-title-small">Air Navigation & Solar Tracker</span>
+        <h1 class="hud-title-main">SkyTrack 3D</h1>
+      </div>
+      
+      <!-- Time Clocks -->
+      <div class="clocks-container">
+        <div class="clock-item">
+          <span class="clock-label" id="clock-origin-label">TPE</span>
+          <span class="clock-time" id="clock-origin-time">00:00:00</span>
+          <span class="clock-timezone" id="clock-origin-tz">UTC+8</span>
+        </div>
+        <div class="clock-item" style="border-color: rgba(0, 242, 254, 0.2)">
+          <span class="clock-label" style="color: var(--accent-cyan)">Airplane</span>
+          <span class="clock-time" id="clock-plane-time" style="color: var(--accent-cyan); text-shadow: 0 0 6px var(--accent-glow)">00:00:00</span>
+          <span class="clock-timezone" id="clock-plane-tz">UTC+8</span>
+        </div>
+        <div class="clock-item">
+          <span class="clock-label" id="clock-dest-label">LAX</span>
+          <span class="clock-time" id="clock-dest-time">00:00:00</span>
+          <span class="clock-timezone" id="clock-dest-tz">UTC-7</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- 3. Sidebar Areas (Floating left and right) -->
+    <div id="main-hud-area">
+      
+      <!-- Left HUD - Flight Controls -->
+      <aside id="left-hud" class="hud-panel">
+        <section class="hud-section">
+          <div class="hud-section-header">航線與投影設定</div>
+          
+          <div class="control-group">
+            <label for="origin-select">起飛機場 (Origin)</label>
+            <select id="origin-select">
+              <!-- Dynamically populated via JS -->
+            </select>
+          </div>
+
+          <div class="control-group">
+            <label for="dest-select">目的機場 (Destination)</label>
+            <select id="dest-select">
+              <!-- Dynamically populated via JS -->
+            </select>
+          </div>
+
+          <div class="control-group">
+            <label>地圖投影模式</label>
+            <div class="pill-selector">
+              <div class="pill-option active" id="btn-proj-globe">3D 地球</div>
+              <div class="pill-option" id="btn-proj-flat">2D 平面</div>
+            </div>
+          </div>
+
+          <div style="margin-top: 5px;">
+            <button class="btn btn-secondary" id="btn-custom-route" style="width: 100%;">
+              自訂飛行航線
+            </button>
+            
+            <div class="custom-route-banner" id="custom-banner">
+              <span style="font-size: 14px">📍</span>
+              <span id="custom-banner-text">請點擊地圖選擇起點。</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="hud-section" style="flex-grow: 0; height: auto;">
+          <div class="hud-section-header">模擬時間控制器</div>
+          
+          <div class="control-group">
+            <label for="date-picker">出發日期與時間 (UTC)</label>
+            <input type="datetime-local" id="date-picker" value="2026-08-05T00:00">
+          </div>
+          
+          <div class="control-group" style="margin-top: 8px;">
+            <label for="month-slider" style="display: flex; justify-content: space-between; font-weight: 500;">
+              <span>月份 (Month)</span>
+              <span id="month-value" style="color: var(--accent-cyan); font-weight: 700;">8月</span>
+            </label>
+            <input type="range" id="month-slider" min="1" max="12" value="8" style="width: 100%; margin-top: 4px;">
+          </div>
+          
+          <div class="control-group" style="margin-top: 8px;">
+            <label style="margin-bottom: 4px; display: block;">季節與節氣快速設定</label>
+            <div class="btn-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+              <button class="btn btn-secondary" id="btn-vernal" style="font-size: 11px; padding: 6px 4px; font-weight: 600;">🌸 春分 (3/21)</button>
+              <button class="btn btn-secondary" id="btn-summer" style="font-size: 11px; padding: 6px 4px; font-weight: 600;">☀️ 夏至 (6/21)</button>
+              <button class="btn btn-secondary" id="btn-autumn" style="font-size: 11px; padding: 6px 4px; font-weight: 600;">🍁 秋分 (9/23)</button>
+              <button class="btn btn-secondary" id="btn-winter" style="font-size: 11px; padding: 6px 4px; font-weight: 600;">❄️ 冬至 (12/21)</button>
+            </div>
+          </div>
+
+          <div class="btn-group" style="margin-top: 8px;">
+            <button class="btn btn-secondary" id="btn-restart" style="width: 100%;">重新起飛</button>
+          </div>
+        </section>
+      </aside>
+
+      <!-- Right HUD - Telemetry Dashboard -->
+      <aside id="right-hud" class="hud-panel">
+        <section class="hud-section">
+          <div class="hud-section-header">飛行狀態儀表板</div>
+          
+          <div class="telemetry-grid">
+            <div class="telemetry-card">
+              <span class="telemetry-label">目前高度</span>
+              <div class="telemetry-value-container">
+                <span class="telemetry-value" id="tel-altitude">0</span>
+                <span class="telemetry-unit">m</span>
+              </div>
+            </div>
+            
+            <div class="telemetry-card">
+              <span class="telemetry-label">地速 (Speed)</span>
+              <div class="telemetry-value-container">
+                <span class="telemetry-value" id="tel-speed">0</span>
+                <span class="telemetry-unit">km/h</span>
+              </div>
+            </div>
+
+            <div class="telemetry-card">
+              <span class="telemetry-label">已飛距離</span>
+              <div class="telemetry-value-container">
+                <span class="telemetry-value" id="tel-distance-traveled">0</span>
+                <span class="telemetry-unit">km</span>
+              </div>
+            </div>
+
+            <div class="telemetry-card">
+              <span class="telemetry-label">賸餘距離</span>
+              <div class="telemetry-value-container">
+                <span class="telemetry-value" id="tel-distance-remaining">0</span>
+                <span class="telemetry-unit">km</span>
+              </div>
+            </div>
+
+            <div class="telemetry-card">
+              <span class="telemetry-label">預估到達時間 (ETA)</span>
+              <div class="telemetry-value-container">
+                <span class="telemetry-value" id="tel-eta">--:--:--</span>
+                <span class="telemetry-unit" style="font-size: 8px">Lcl</span>
+              </div>
+            </div>
+
+            <div class="telemetry-card">
+              <span class="telemetry-label">高空風速/風向</span>
+              <div class="telemetry-value-container">
+                <span class="telemetry-value" id="tel-wind">--</span>
+                <span class="telemetry-unit">km/h</span>
+              </div>
+            </div>
+
+            <div class="telemetry-card">
+              <span class="telemetry-label">機外溫度 (OAT)</span>
+              <div class="telemetry-value-container">
+                <span class="telemetry-value" id="tel-temp">0</span>
+                <span class="telemetry-unit">°C</span>
+              </div>
+            </div>
+
+            <div class="telemetry-card">
+              <span class="telemetry-label">目前經緯度</span>
+              <div class="telemetry-value-container" style="flex-direction: column; align-items: flex-start; gap: 0;">
+                <span class="telemetry-value" id="tel-coords" style="font-size: 11px; font-family: var(--font-sans); word-break: break-all;">0.0°N, 0.0°E</span>
+              </div>
+            </div>
+          </div>
+        </section>
+      </aside>
+
+    </div>
+
+    <!-- 4. Footer HUD Panel - Progress & Simulation Speed -->
+    <footer id="footer-hud" class="hud-panel">
+      <!-- Time Scrubber Timeline -->
+      <div class="timeline-container">
+        <span class="time-label">已飛</span>
+        <span class="time-label current" id="time-elapsed">00:00</span>
+        <input type="range" class="time-scrubber" id="time-slider" min="0" max="1000" value="0">
+        <span class="time-label current" id="time-remaining">00:00</span>
+        <span class="time-label">賸餘</span>
+      </div>
+
+      <!-- Playback Row -->
+      <div class="controls-row">
+        <!-- Progress track (Airport to Airport) -->
+        <div class="progress-bar-container" style="display: flex; flex-direction: column; align-items: stretch; gap: 4px; flex-grow: 1; max-width: 50%;">
+          <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--text-secondary); padding: 0 4px;">
+            <span id="lbl-origin">Taipei</span>
+            <span id="lbl-dest">Los Angeles</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 10px; width: 100%;">
+            <span class="airport-code" id="origin-code" style="color: var(--accent-blue);">TPE</span>
+            <div class="flight-progress-track">
+              <div class="flight-progress-fill" id="progress-bar-fill"></div>
+            </div>
+            <span class="airport-code" id="dest-code" style="color: var(--alert-orange);">LAX</span>
+          </div>
+        </div>
+
+        <div class="playback-controls">
+          <!-- Play / Pause -->
+          <button class="play-btn" id="play-btn">⏸</button>
+          
+          <!-- Speed Multipliers -->
+          <div class="speed-control-group">
+            <button class="speed-btn" data-speed="1">即時</button>
+            <button class="speed-btn" data-speed="60">60x</button>
+            <button class="speed-btn active" data-speed="3600">3600x</button>
+            <button class="speed-btn" data-speed="18000">18000x</button>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- City details tooltip overlay -->
+  <div class="tooltip" id="tooltip"></div>
+
+  <!-- Load D3 and TopoJSON libraries globally -->
+  <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+  <script src="https://cdn.jsdelivr.net/npm/topojson-client@3"></script>
+  <!-- Load local world map data (offline & CORS bypass) -->
+  <script src="world-data.js"></script>
+  <!-- Load our application controller -->
+  <script src="app.js"></script>
+</body>
+</html>
