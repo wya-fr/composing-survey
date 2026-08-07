@@ -100,6 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initLimits();
   loadDraft();
   updateStepUI();
+  setupCardClickHandlers();
   updateCardCheckedState();
 
   // Listen to changes to save drafts
@@ -834,6 +835,27 @@ document.addEventListener('DOMContentLoaded', () => {
           card.classList.remove('card-checked');
         }
       }
+    });
+  }
+
+  function setupCardClickHandlers() {
+    document.querySelectorAll('.radio-card, .checkbox-card').forEach(card => {
+      card.addEventListener('click', (e) => {
+        const input = card.querySelector('input');
+        if (!input || input.disabled) return;
+
+        // Bypasses browser default label toggle to avoid double triggering
+        e.preventDefault();
+
+        if (input.type === 'checkbox') {
+          input.checked = !input.checked;
+        } else if (input.type === 'radio') {
+          input.checked = true;
+        }
+
+        // Trigger change event manually so form listener handles state updates
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+      });
     });
   }
 
