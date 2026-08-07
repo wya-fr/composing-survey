@@ -100,9 +100,13 @@ document.addEventListener('DOMContentLoaded', () => {
   initLimits();
   loadDraft();
   updateStepUI();
+  updateCardCheckedState();
 
   // Listen to changes to save drafts
-  form.addEventListener('change', saveDraft);
+  form.addEventListener('change', () => {
+    saveDraft();
+    updateCardCheckedState();
+  });
   form.addEventListener('input', saveDraft);
 
   // --- NAVIGATION LOGIC ---
@@ -155,6 +159,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Reset limits & disabled classes
     initLimits();
+    updateCardCheckedState();
 
     currentStep = 1;
     successScreen.classList.add('hidden');
@@ -818,5 +823,18 @@ document.addEventListener('DOMContentLoaded', () => {
       initSettingsUI();
     }
   });
+
+  function updateCardCheckedState() {
+    document.querySelectorAll('.radio-card, .checkbox-card').forEach(card => {
+      const input = card.querySelector('input');
+      if (input) {
+        if (input.checked) {
+          card.classList.add('card-checked');
+        } else {
+          card.classList.remove('card-checked');
+        }
+      }
+    });
+  }
 
 });

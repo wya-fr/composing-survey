@@ -24,6 +24,7 @@ body {
 
 /* Radio & Checkbox Card Styling */
 .radio-card, .checkbox-card {
+  position: relative;
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   user-select: none;
 }
@@ -34,34 +35,53 @@ body {
   box-shadow: 0 4px 15px rgba(99, 102, 241, 0.04);
 }
 
-/* Checked States */
-.radio-card:has(input:checked) {
-  background-color: rgba(99, 102, 241, 0.04);
-  border-color: rgba(99, 102, 241, 0.8);
-  box-shadow: 0 0 12px var(--color-indigo-glow);
+/* Make inputs overlay the entire card for 100% reliable mobile tap behavior */
+.radio-card input[type="radio"], 
+.checkbox-card input[type="checkbox"] {
+  position: absolute !important;
+  top: 0;
+  left: 0;
+  width: 100% !important;
+  height: 100% !important;
+  opacity: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  cursor: pointer !important;
+  z-index: 5 !important;
+  /* Reset the sr-only clip rules to override Tailwind's sr-only */
+  clip: auto !important;
+  clip-path: none !important;
+  overflow: visible !important;
 }
 
-.radio-card:has(input:checked) .custom-radio {
-  border-color: #6366f1;
+/* Checked States (supports both native CSS :has and JS fallback .card-checked) */
+.radio-card:has(input:checked), .radio-card.card-checked {
+  background-color: rgba(99, 102, 241, 0.04) !important;
+  border-color: rgba(99, 102, 241, 0.8) !important;
+  box-shadow: 0 0 12px var(--color-indigo-glow) !important;
 }
 
-.radio-card:has(input:checked) .dot {
-  transform: scale(1);
+.radio-card:has(input:checked) .custom-radio, .radio-card.card-checked .custom-radio {
+  border-color: #6366f1 !important;
 }
 
-.checkbox-card:has(input:checked) {
-  background-color: rgba(99, 102, 241, 0.04);
-  border-color: rgba(99, 102, 241, 0.8);
-  box-shadow: 0 0 12px var(--color-indigo-glow);
+.radio-card:has(input:checked) .dot, .radio-card.card-checked .dot {
+  transform: scale(1) !important;
 }
 
-.checkbox-card:has(input:checked) .custom-checkbox {
-  border-color: #6366f1;
-  background-color: #6366f1;
+.checkbox-card:has(input:checked), .checkbox-card.card-checked {
+  background-color: rgba(99, 102, 241, 0.04) !important;
+  border-color: rgba(99, 102, 241, 0.8) !important;
+  box-shadow: 0 0 12px var(--color-indigo-glow) !important;
 }
 
-.checkbox-card:has(input:checked) i {
-  transform: scale(1);
+.checkbox-card:has(input:checked) .custom-checkbox, .checkbox-card.card-checked .custom-checkbox {
+  border-color: #6366f1 !important;
+  background-color: #6366f1 !important;
+}
+
+.checkbox-card:has(input:checked) i, .checkbox-card.card-checked i {
+  transform: scale(1) !important;
 }
 
 /* Form Input Focus */
