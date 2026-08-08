@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GROOVE DECK // 4-Bar Loop DJ 節奏機器</title>
+  <!-- 引入 Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="glow-bg"></div>
+  <div class="container">
+    <!-- 頂部控制列 -->
+    <header class="main-header glass-panel">
+      <div class="logo-area">
+        <h1>GROOVE DECK</h1>
+        <span class="sub-logo">LOOP MACHINE // 4 BARS</span>
+        <span id="audio-status" class="audio-status-badge offline">AUDIO: OFFLINE</span>
+      </div>
+      
+      <div class="transport-controls">
+        <button id="btn-play" class="btn btn-primary" title="播放 / 暫停">
+          <span class="icon">▶</span> PLAY
+        </button>
+        <button id="btn-stop" class="btn btn-secondary" title="停止並重設">
+          <span class="icon">■</span> STOP
+        </button>
+        <button id="btn-test" class="btn btn-secondary" title="測試聲音 (繞過排程)">
+          <span class="icon">🔊</span> TEST
+        </button>
+        <button id="btn-clear" class="btn btn-danger" title="清空所有音符">
+          <span class="icon">🗑</span> CLEAR
+        </button>
+      </div>
+
+      <div class="bpm-controls">
+        <div class="bpm-display-group">
+          <label for="bpm-slider">BPM</label>
+          <div class="digital-display" id="bpm-display">120</div>
+        </div>
+        <input type="range" id="bpm-slider" min="60" max="180" value="120" step="1">
+        <button id="btn-tap" class="btn btn-secondary">TAP</button>
+      </div>
+
+      <div class="presets-group">
+        <label for="preset-select">風格預設</label>
+        <select id="preset-select" class="styled-select">
+          <option value="jazz">Jazz Swing // 爵士搖擺</option>
+          <option value="hiphop">Boom Bap // 嘻哈經典</option>
+          <option value="house">Four-to-the-Floor // 浩室電子</option>
+          <option value="dnb">Drum & Bass // 疾風鼓打</option>
+          <option value="empty">Clear Grid // 空白畫布</option>
+        </select>
+      </div>
+    </header>
+
+    <!-- 主工作區 -->
+    <main class="deck-layout">
+      <!-- 左側：DJ 唱盤 (Turntable) -->
+      <section class="turntable-panel glass-panel">
+        <div class="panel-header">
+          <h3>DECK A // SCRATCH</h3>
+        </div>
+        <div class="vinyl-wrapper">
+          <div class="tonearm" id="tonearm"></div>
+          <div class="vinyl-platter" id="vinyl-platter">
+            <div class="vinyl-groove-1"></div>
+            <div class="vinyl-groove-2"></div>
+            <div class="vinyl-center-label">
+              <div class="vinyl-hole"></div>
+              <span class="label-brand">GROOVE</span>
+              <span class="label-bpm" id="label-platter-bpm">120</span>
+            </div>
+          </div>
+        </div>
+        <div class="scratch-helper">
+          按住唱片並來回拖曳以進行刮碟 (Scratch)
+        </div>
+      </section>
+
+      <!-- 中間：編曲步進器 (Sequencer Grid) -->
+      <section class="sequencer-panel glass-panel">
+        <div class="panel-header">
+          <h3>STEP SEQUENCER</h3>
+          <!-- 小節導覽 (Bar Selector) -->
+          <div class="bar-selector">
+            <button class="btn-bar active" data-bar="0">BAR 1</button>
+            <button class="btn-bar" data-bar="1">BAR 2</button>
+            <button class="btn-bar" data-bar="2">BAR 3</button>
+            <button class="btn-bar" data-bar="3">BAR 4</button>
+            <div class="auto-follow-toggle">
+              <input type="checkbox" id="chk-follow" checked>
+              <label for="chk-follow">自動跟隨</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-container">
+          <!-- 時間軸步進指示燈 -->
+          <div class="timeline-row">
+            <div class="instrument-info-spacer"></div>
+            <div class="step-indicators" id="step-indicators">
+              <!-- 16 個指示燈，由 JS 產生 -->
+            </div>
+          </div>
+
+          <!-- 樂器通道，由 JS / HTML 混編 -->
+          <div class="sequencer-rows" id="sequencer-rows">
+            <!-- 樂器列將在這裡動態生成或靜態排版 -->
+            <!-- 1. Kick -->
+            <div class="sequencer-row" data-instrument="kick">
+              <div class="instrument-control">
+                <span class="inst-name">KICK</span>
+                <div class="inst-toggles">
+                  <button class="btn-mute" title="靜音">M</button>
+                  <button class="btn-solo" title="獨奏">S</button>
+                </div>
+              </div>
+              <div class="steps-grid" data-row="0">
+                <!-- 16 steps -->
+              </div>
+            </div>
+
+            <!-- 2. Snare -->
+            <div class="sequencer-row" data-instrument="snare">
+              <div class="instrument-control">
+                <span class="inst-name">SNARE</span>
+                <div class="inst-toggles">
+                  <button class="btn-mute" title="靜音">M</button>
+                  <button class="btn-solo" title="獨奏">S</button>
+                </div>
+              </div>
+              <div class="steps-grid" data-row="1">
+                <!-- 16 steps -->
+              </div>
+            </div>
+
+            <!-- 3. Closed Hat -->
+            <div class="sequencer-row" data-instrument="ch">
+              <div class="instrument-control">
+                <span class="inst-name">C. HAT</span>
+                <div class="inst-toggles">
+                  <button class="btn-mute" title="靜音">M</button>
+                  <button class="btn-solo" title="獨奏">S</button>
+                </div>
+              </div>
+              <div class="steps-grid" data-row="2">
+                <!-- 16 steps -->
+              </div>
+            </div>
+
+            <!-- 4. Open Hat -->
+            <div class="sequencer-row" data-instrument="oh">
+              <div class="instrument-control">
+                <span class="inst-name">O. HAT</span>
+                <div class="inst-toggles">
+                  <button class="btn-mute" title="靜音">M</button>
+                  <button class="btn-solo" title="獨奏">S</button>
+                </div>
+              </div>
+              <div class="steps-grid" data-row="3">
+                <!-- 16 steps -->
+              </div>
+            </div>
+
+            <!-- 5. Clap -->
+            <div class="sequencer-row" data-instrument="clap">
+              <div class="instrument-control">
+                <span class="inst-name">CLAP</span>
+                <div class="inst-toggles">
+                  <button class="btn-mute" title="靜音">M</button>
+                  <button class="btn-solo" title="獨奏">S</button>
+                </div>
+              </div>
+              <div class="steps-grid" data-row="4">
+                <!-- 16 steps -->
+              </div>
+            </div>
+
+            <!-- 6. Tom / Rim -->
+            <div class="sequencer-row" data-instrument="tom">
+              <div class="instrument-control">
+                <span class="inst-name">TOM/RIM</span>
+                <div class="inst-toggles">
+                  <button class="btn-mute" title="靜音">M</button>
+                  <button class="btn-solo" title="獨奏">S</button>
+                </div>
+              </div>
+              <div class="steps-grid" data-row="5">
+                <!-- 16 steps -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-footer">
+          <div class="beat-marker-label">第一拍 (1-4)</div>
+          <div class="beat-marker-label">第二拍 (5-8)</div>
+          <div class="beat-marker-label">第三拍 (9-12)</div>
+          <div class="beat-marker-label">第四拍 (13-16)</div>
+        </div>
+      </section>
+
+      <!-- 右側：混音器與特效 (Mixer & FX) -->
+      <section class="mixer-panel glass-panel">
+        <div class="panel-header">
+          <h3>DJ MIXER & FX</h3>
+        </div>
+
+        <!-- 視覺化面板 -->
+        <div class="screen-wrapper">
+          <canvas id="visualizer-canvas"></canvas>
+          <div class="screen-overlay-grid"></div>
+        </div>
+
+        <div class="fx-section">
+          <!-- 雙向 DJ 濾波器 -->
+          <div class="fx-card">
+            <span class="fx-title">DJ FILTER</span>
+            <div class="knob-container">
+              <input type="range" id="knob-filter" min="-100" max="100" value="0" class="custom-slider">
+              <div class="knob-readout" id="filter-readout">BYPASS</div>
+            </div>
+            <div class="filter-labels">
+              <span>LPF (低通)</span>
+              <span>HPF (高通)</span>
+            </div>
+          </div>
+
+          <!-- 延遲效果器 Delay -->
+          <div class="fx-card">
+            <span class="fx-title">DELAY EFFECT</span>
+            <div class="sliders-row">
+              <div class="slider-vertical-group">
+                <input type="range" id="delay-time" min="0" max="95" value="30" class="slider-vertical">
+                <span class="slider-label">TIME</span>
+              </div>
+              <div class="slider-vertical-group">
+                <input type="range" id="delay-feedback" min="0" max="90" value="20" class="slider-vertical">
+                <span class="slider-label">FEEDBACK</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Stutter 效果 (重複切碎) -->
+          <div class="fx-card">
+            <span class="fx-title">PERFORMANCE FX</span>
+            <div class="stutter-buttons">
+              <button id="btn-stutter-16" class="btn btn-fx">STUTTER 1/16</button>
+              <button id="btn-stutter-8" class="btn btn-fx">STUTTER 1/8</button>
+              <button id="btn-tape-stop" class="btn btn-fx btn-danger">TAPE STOP</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 主音量 & 交叉混音 -->
+        <div class="master-volume-section">
+          <label for="master-volume">MASTER VOLUME</label>
+          <input type="range" id="master-volume" min="0" max="100" value="80">
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <footer class="app-footer">
+    <p>GROOVE DECK // Web Audio API Synthesized Drums // Created by Antigravity</p>
+    <div id="debug-log" style="color: #ff007f; font-family: 'Orbitron', monospace; font-size: 11px; margin-top: 10px; min-height: 15px; letter-spacing: 1px; text-shadow: 0 0 5px rgba(255,0,127,0.5);"></div>
+  </footer>
+
+  <!-- 引入邏輯腳本 -->
+  <script src="audio.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
